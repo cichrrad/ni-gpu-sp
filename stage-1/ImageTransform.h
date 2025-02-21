@@ -6,7 +6,7 @@
 
 enum CannyMethod {
     OPENCV,  // Use OpenCV's built-in Canny detector
-    CUSTOM   // Use your own implementation (to be written)
+    CUSTOM   // Use custom implementation
 };
 
 class ImageTransform {
@@ -25,7 +25,7 @@ public:
     // OpenCV-based Canny Edge Detection
     void applyOpenCVCanny();
 
-    // Placeholder for your own Canny implementation
+    // Custom implementation of Canny Edge Detector
     void applyCustomCanny();
 
     // Getter for processed image
