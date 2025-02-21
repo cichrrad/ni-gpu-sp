@@ -11,13 +11,17 @@ enum CannyMethod {
 
 class ImageTransform {
 private:
-    cv::Mat image; // Original image
-    cv::Mat edges; // Edge-detected image
+    cv::Mat image;      // Original image
+    cv::Mat edges;      // Edge-detected image
     CannyMethod method; // Algorithm selection
+    bool iterative_output; // Flag to save intermediate outputs
+
+    // Helper function to save intermediate images
+    void saveIntermediateImage(const cv::Mat &image, const std::string &name);
 
 public:
-    // Constructor with method selection
-    ImageTransform(const cv::Mat &inputImage, CannyMethod method = OPENCV);
+    // Constructor with method selection and iterative output flag
+    ImageTransform(const cv::Mat &inputImage, CannyMethod method = OPENCV, bool iterative_output = false);
 
     // Applies the selected Canny edge detection method
     void applyCanny();
