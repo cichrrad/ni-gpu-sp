@@ -34,9 +34,8 @@ The project is structured into the following **four stages**, with each stage co
  ├── stage-3/       # Benchmarking and performance evaluation
  ├── stage-4/       # Final report and results
  ├── data/          # Sample images for testing
- ├── README.md      # Project documentation
- ├── .gitignore     # Ignored files (build artifacts, binaries, etc.)
- ├── CMakeLists.txt # (Optional) CMake build script
+ ├── README.md
+ ├── .gitignore
 ```
 
 ---
