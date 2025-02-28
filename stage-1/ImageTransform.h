@@ -11,37 +11,32 @@ enum CannyMethod {
 
 class ImageTransform {
 private:
-  cv::Mat image;         // Original image
-  cv::Mat edges;         // Edge-detected image
+  cv::Mat src;           // Original image
+  cv::Mat dest;          // Edge-detected image
   CannyMethod method;    // Algorithm selection
   bool iterative_output; // Flag to save intermediate outputs
 
-  // Helper function to save intermediate images
-  void saveIntermediateImage(const cv::Mat &image, const std::string &name);
+  void _saveIntermediateImage(const cv::Mat &image, const std::string &name);
 
-  // Custom processing steps (private since they are not user-facing)
-  void convertToGrayscale(const cv::Mat &input, cv::Mat &output);
-  void applyGaussianBlur(const cv::Mat &input, cv::Mat &output);
-  void applySobel(const cv::Mat &input, cv::Mat &gradX, cv::Mat &gradY,
-                  cv::Mat &magnitude, cv::Mat &direction);
-  void applyNonMaximumSuppression(const cv::Mat &magnitude,
-                                  const cv::Mat &direction, cv::Mat &output);
-  void applyDoubleThreshold(const cv::Mat &input, cv::Mat &output,
-                            double lowThreshold, double highThreshold);
-  void applyHysteresis(cv::Mat &input);
+  void _applyOpenCVCanny();
+  void _applyCustomCanny();
 
-  void applyOpenCVCanny();
-  void applyCustomCanny();
+  void _convertToGrayscale(const cv::Mat &input, cv::Mat &output);
+  void _applyGaussianBlur(const cv::Mat &input, cv::Mat &output);
+  void _applySobel(const cv::Mat &input, cv::Mat &magnitude,
+                   cv::Mat &direction);
+  void _applyNonMaximumSuppression(const cv::Mat &magnitude,
+                                   const cv::Mat &direction, cv::Mat &output);
+  void _applyDoubleThreshold(cv::Mat &input, cv::Mat &output);
+  void _applyHysteresis(cv::Mat &input);
 
 public:
   // Constructor with method selection and iterative output flag
   ImageTransform(const cv::Mat &inputImage, CannyMethod method = OPENCV,
                  bool iterative_output = false);
 
-  // Applies the selected Canny edge detection method
   void applyCanny();
 
-  // Getter for processed image
   cv::Mat getImage() const;
 };
 
