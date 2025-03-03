@@ -39,25 +39,32 @@ void ImageTransform::_applyOpenCVCanny() {
 // Custom Canny Edge Detection
 void ImageTransform::_applyCustomCanny() {
   std::cout << "Applying Custom Canny Edge Detector...\n";
+  cv::Mat magnitude, direction, temp;
 
-  cv::Mat blurred, magnitude, direction, temp;
+  //* TODOs are for next stage
 
+  // TODO parallel over rows or image segments
   _convertToGrayscale(src, dest);
   _saveIntermediateImage(dest, "1_grayscale");
 
+  // TODO parallel over kernel area (5x5)
   _applyGaussianBlur(dest, temp);
   _saveIntermediateImage(temp, "2_gaussian_blur");
 
+  // TODO parallel over kernel area (3x3)
   _applySobel(temp, magnitude, direction);
   _saveIntermediateImage(magnitude, "3_gradient_magnitude");
   _saveIntermediateImage(direction, "3_gradient_direction");
 
+  // TODO parallel over triple row stripes or image segments
   _applyNonMaximumSuppression(magnitude, direction, temp);
   _saveIntermediateImage(temp, "4_non_max_suppression");
 
+  // TODO parallel over rows or image segments
   _applyDoubleThreshold(temp, dest);
   _saveIntermediateImage(dest, "5_double_threshold");
 
+  // TODO parallel queue processing
   _applyHysteresis(dest);
 }
 
@@ -259,15 +266,6 @@ void ImageTransform::_applyDoubleThreshold(cv::Mat &input, cv::Mat &output) {
 // 6️ Edge Tracking by Hysteresis
 void ImageTransform::_applyHysteresis(cv::Mat &input) {
   CV_Assert(input.type() == CV_8UC1); // Ensure proper input type
-
-  // NOTE: could be improved and optimized
-  // for example queue could be filled in the prior steps
-  // when establishing strong and weak edges
-
-  // BUT that wont easily translate to parallel computing
-
-  // --> we want the parts with convolution operations separated
-  // so we can easily parallelize them across the image
 
   //[https://en.wikipedia.org/wiki/Connected-component_labeling]
   cv::Mat visited = cv::Mat::zeros(input.size(), CV_8UC1);
