@@ -41,8 +41,6 @@ void ImageTransform::_applyCustomCanny() {
   std::cout << "Applying Custom Canny Edge Detector...\n";
   cv::Mat magnitude, direction, temp;
 
-  //* TODOs are for next stage
-
   // TODO parallel over rows or image segments
   _convertToGrayscale(src, dest);
   _saveIntermediateImage(dest, "1_grayscale");
@@ -54,7 +52,6 @@ void ImageTransform::_applyCustomCanny() {
   // TODO parallel over kernel area (3x3)
   _applySobel(temp, magnitude, direction);
   _saveIntermediateImage(magnitude, "3_gradient_magnitude");
-  _saveIntermediateImage(direction, "3_gradient_direction");
 
   // TODO parallel over triple row stripes or image segments
   _applyNonMaximumSuppression(magnitude, direction, temp);
@@ -99,13 +96,13 @@ void ImageTransform::_applyGaussianBlur(const cv::Mat &input, cv::Mat &output) {
   CV_Assert(input.channels() == 1); // ensure grayscale input
 
   //[https://en.wikipedia.org/wiki/Gaussian_filter]
-  // fixed kernel for sigma = 1.4
   const float kernel[5][5] = {{2, 4, 5, 4, 2},
                               {4, 9, 12, 9, 4},
                               {5, 12, 15, 12, 5},
                               {4, 9, 12, 9, 4},
                               {2, 4, 5, 4, 2}};
-  const float kernelSum = 159.0; // Normalization factor
+  const float kernelSum =
+      159.0; // Normalization factor (must be == sum of kernel elements)
 
   int k = 2; // k = 2 for size 5x5 kernel
   output = cv::Mat(input.rows, input.cols, CV_8UC1, cv::Scalar(0));
@@ -122,7 +119,7 @@ void ImageTransform::_applyGaussianBlur(const cv::Mat &input, cv::Mat &output) {
         }
       }
 
-      // normalize and assign result
+      // normalize and assign to output
       output.at<uchar>(i, j) = static_cast<uchar>(sum / kernelSum);
     }
   }
@@ -134,17 +131,25 @@ void ImageTransform::_applySobel(const cv::Mat &input, cv::Mat &magnitude,
   CV_Assert(input.channels() == 1); // ensure grayscale input
 
   // TLDR:
-  // We want to calculate gradient -- 1st derivative in axis directions (x,y)
+  // We want to calculate gradient -- from 1st derivative in axis directions
   // --> Gx and Gy
   // then gradient G = sqrt(Gx^2 + Gy^2)
   // direction of gradient theta = arctan(Gy/Gx)
-  // we clamp direction to 4 axis -- 0, 90, 135, 45
+  // we clamp direction to 4 axis -- 0 (--), 90 (|), 135 (\), 45 (/)
 
   // Sobel Kernels for extracting gradients in axis directions
   // [https://en.wikipedia.org/wiki/Sobel_operator]
 
-  int GxKernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-  int GyKernel[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+  int GxKernel[3][3] = {
+      {1, 0, -1}, //
+      {2, 0, -2}, //
+      {1, 0, -1}  //
+  };
+  int GyKernel[3][3] = {
+      {1, 2, 1},   //
+      {0, 0, 0},   //
+      {-1, -2, -1} //
+  };
 
   magnitude = cv::Mat(input.rows, input.cols, CV_32F, cv::Scalar(0));
   direction = cv::Mat(input.rows, input.cols, CV_32F, cv::Scalar(0));
@@ -176,6 +181,8 @@ void ImageTransform::_applySobel(const cv::Mat &input, cv::Mat &magnitude,
         angle += 180;
 
       // clamp 0, 45, 90, or 135 degrees
+      // should we color based on angle:
+      // [https://en.wikipedia.org/wiki/Sobel_operator#/media/File:Sobel_Operator_Gradient_Angle.JPG]
       if ((angle >= 0 && angle < 22.5) || (angle >= 157.5 && angle <= 180))
         direction.at<float>(i, j) = 0;
       else if (angle >= 22.5 && angle < 67.5)
@@ -185,6 +192,27 @@ void ImageTransform::_applySobel(const cv::Mat &input, cv::Mat &magnitude,
       else
         direction.at<float>(i, j) = 135;
     }
+  }
+
+  // pretty direction output
+  if (iterative_output) {
+    cv::Mat directionColor(direction.size(), CV_8UC3, cv::Scalar(0, 0, 0));
+    for (int i = 0; i < direction.rows; i++) {
+      for (int j = 0; j < direction.cols; j++) {
+        float angle = direction.at<float>(i, j);
+        cv::Vec3b color;
+        if (angle == 0)
+          color = cv::Vec3b(255, 0, 0);
+        else if (angle == 45)
+          color = cv::Vec3b(0, 255, 0);
+        else if (angle == 90)
+          color = cv::Vec3b(0, 0, 255);
+        else if (angle == 135)
+          color = cv::Vec3b(0, 255, 255);
+        directionColor.at<cv::Vec3b>(i, j) = color;
+      }
+    }
+    _saveIntermediateImage(directionColor, "3_colored_direction");
   }
 }
 
@@ -213,12 +241,12 @@ void ImageTransform::_applyNonMaximumSuppression(const cv::Mat &magnitude,
         neighbor1 = magnitude.at<float>(i - 1, j); // top
         neighbor2 = magnitude.at<float>(i + 1, j); // bottom
 
-      } else if (angle == 135) {                       // edge is \
+      } else if (angle == 45) {                        // edge is \
 
         neighbor1 = magnitude.at<float>(i - 1, j - 1); // top-left
         neighbor2 = magnitude.at<float>(i + 1, j + 1); // bottom-right
 
-      } else if (angle == 45) {                        // edge is /
+      } else if (angle == 135) {                       // edge is /
         neighbor1 = magnitude.at<float>(i - 1, j + 1); // top-right
         neighbor2 = magnitude.at<float>(i + 1, j - 1); // bottom-left
       }
@@ -310,8 +338,8 @@ void ImageTransform::_applyHysteresis(cv::Mat &input) {
   for (int i = 0; i < input.rows; i++) {
     for (int j = 0; j < input.cols; j++) {
       if (input.at<uchar>(i, j) == 128) {
-        input.at<uchar>(i, j) =
-            0; // Suppress weak edges not linked to strong ones
+        // Suppress weak edges not linked to strong ones
+        input.at<uchar>(i, j) = 0;
       }
     }
   }
