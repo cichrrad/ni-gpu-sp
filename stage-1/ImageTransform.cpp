@@ -1,4 +1,5 @@
 #include "ImageTransform.h"
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <queue>
@@ -38,6 +39,7 @@ void ImageTransform::_applyOpenCVCanny() {
 
 // Custom Canny Edge Detection
 void ImageTransform::_applyCustomCanny() {
+
   std::cout << "Applying Custom Canny Edge Detector...\n";
   cv::Mat magnitude, direction, temp;
 
@@ -61,7 +63,7 @@ void ImageTransform::_applyCustomCanny() {
   _applyDoubleThreshold(temp, dest);
   _saveIntermediateImage(dest, "5_double_threshold");
 
-  // TODO parallel queue processing
+  // TODO parallel queue processing / rows
   _applyHysteresis(dest);
 }
 
@@ -96,6 +98,7 @@ void ImageTransform::_applyGaussianBlur(const cv::Mat &input, cv::Mat &output) {
   CV_Assert(input.channels() == 1); // ensure grayscale input
 
   //[https://en.wikipedia.org/wiki/Gaussian_filter]
+  // Fixed 5x5 Gaussian kernel for sigma = 1.4
   const float kernel[5][5] = {{2, 4, 5, 4, 2},
                               {4, 9, 12, 9, 4},
                               {5, 12, 15, 12, 5},
@@ -107,19 +110,21 @@ void ImageTransform::_applyGaussianBlur(const cv::Mat &input, cv::Mat &output) {
   int k = 2; // k = 2 for size 5x5 kernel
   output = cv::Mat(input.rows, input.cols, CV_8UC1, cv::Scalar(0));
 
-  // apply convolution kernel
-  for (int i = k; i < input.rows - k; i++) {
-    for (int j = k; j < input.cols - k; j++) {
+  // Process every pixel in the image
+  for (int i = 0; i < input.rows; i++) {
+    for (int j = 0; j < input.cols; j++) {
       float sum = 0.0;
 
-      // operation
+      // For each pixel, apply the kernel with border replication (clamping)
       for (int x = -k; x <= k; x++) {
         for (int y = -k; y <= k; y++) {
-          sum += kernel[x + k][y + k] * input.at<uchar>(i + x, j + y);
+          // Clamp indices so they stay within the valid range
+          int xi = std::max(0, std::min(i + x, input.rows - 1));
+          int yj = std::max(0, std::min(j + y, input.cols - 1));
+          sum += kernel[x + k][y + k] * input.at<uchar>(xi, yj);
         }
       }
-
-      // normalize and assign to output
+      // Normalize and assign result
       output.at<uchar>(i, j) = static_cast<uchar>(sum / kernelSum);
     }
   }
@@ -241,12 +246,11 @@ void ImageTransform::_applyNonMaximumSuppression(const cv::Mat &magnitude,
         neighbor1 = magnitude.at<float>(i - 1, j); // top
         neighbor2 = magnitude.at<float>(i + 1, j); // bottom
 
-      } else if (angle == 45) {                        // edge is \
-
+      } else if (angle == 45) {                        // edge is /
         neighbor1 = magnitude.at<float>(i - 1, j - 1); // top-left
         neighbor2 = magnitude.at<float>(i + 1, j + 1); // bottom-right
 
-      } else if (angle == 135) {                       // edge is /
+      } else if (angle == 135) {
         neighbor1 = magnitude.at<float>(i - 1, j + 1); // top-right
         neighbor2 = magnitude.at<float>(i + 1, j - 1); // bottom-left
       }
@@ -265,11 +269,12 @@ void ImageTransform::_applyNonMaximumSuppression(const cv::Mat &magnitude,
 void ImageTransform::_applyDoubleThreshold(cv::Mat &input, cv::Mat &output) {
   CV_Assert(input.type() == CV_32F); // ensure proper input type
 
-  // TODO : implement less unga-bunga threshold selection
+  // TODO : implement less non-existent threshold selection
   // (ANYTHING ADAPTIVE would be better)
   // ideal? --> Otsu’s Method
   // [https://en.wikipedia.org/wiki/Otsu%27s_method]
 
+  // seems to be okay for most images
   float highThreshold = 47;
   float lowThreshold = 127;
 
