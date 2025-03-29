@@ -4,12 +4,13 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <cmath>
+#include <string>
 
 // Block size for 2D kernels
 #define BLOCK_SIZE 16
-#define KERNEL_SIZE 5
+#define KERNEL_SIZE 5 // gaussian kernel size
 
-// Fixed 5x5 Gaussian kernel for sigma ~1.4 stored in constant memory
+// Fixed 5x5 Gaussian kernel stored in constant memory
 __constant__ float d_gaussianKernel[KERNEL_SIZE * KERNEL_SIZE] = {
     2, 4, 5, 4, 2,
     4, 9, 12, 9, 4,
@@ -17,10 +18,13 @@ __constant__ float d_gaussianKernel[KERNEL_SIZE * KERNEL_SIZE] = {
     4, 9, 12, 9, 4,
     2, 4, 5, 4, 2};
 
+// Sobel kernels
+__constant__ int d_GxKernel[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
+__constant__ int d_GyKernel[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
+
 // ===========================
 // Kernel 1: Grayscale Conversion
 // ===========================
-// Input is uchar3 (BGR) and output is a single-channel 8-bit grayscale image.
 __global__ void kernelGrayscale(const uchar3 *input, unsigned char *output, int width, int height)
 {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -28,7 +32,7 @@ __global__ void kernelGrayscale(const uchar3 *input, unsigned char *output, int 
     if (idx < total)
     {
         uchar3 pixel = input[idx]; // OpenCV stores color as BGR
-        // Gray = 0.299 * R + 0.587 * G + 0.114 * B
+        // Gray = 0.114 * B + 0.587 * G + 0.299 * R
         float gray = 0.299f * pixel.z + 0.587f * pixel.y + 0.114f * pixel.x;
         output[idx] = static_cast<unsigned char>(gray);
     }
@@ -37,8 +41,6 @@ __global__ void kernelGrayscale(const uchar3 *input, unsigned char *output, int 
 // ===========================
 // Kernel 2: Gaussian Blur
 // ===========================
-// Using a fixed 5x5 kernel with border clamping.
-// Input and output are 1D arrays (row-major order).
 __global__ void kernelGaussianBlur(const unsigned char *input, unsigned char *output, int width, int height)
 {
     int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -67,8 +69,6 @@ __global__ void kernelGaussianBlur(const unsigned char *input, unsigned char *ou
 // ===========================
 // Kernel 3: Sobel Filter
 // ===========================
-// Computes gradient magnitude and quantized direction (0, 45, 90, 135)
-// Input is grayscale; outputs are float arrays (magnitude, direction)
 __global__ void kernelSobel(const unsigned char *input, float *magnitude, float *direction, int width, int height)
 {
     int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -78,13 +78,6 @@ __global__ void kernelSobel(const unsigned char *input, float *magnitude, float 
     if (row >= 1 && row < height - 1 && col >= 1 && col < width - 1)
     {
         int idx = row * width + col;
-        // Sobel kernels (hardcoded)
-        int GxKernel[3][3] = {{1, 0, -1},
-                              {2, 0, -2},
-                              {1, 0, -1}};
-        int GyKernel[3][3] = {{1, 2, 1},
-                              {0, 0, 0},
-                              {-1, -2, -1}};
         float Gx = 0, Gy = 0;
         // Convolve over 3x3 neighborhood
         for (int dx = -1; dx <= 1; dx++)
@@ -93,8 +86,8 @@ __global__ void kernelSobel(const unsigned char *input, float *magnitude, float 
             {
                 int neighbor = (row + dx) * width + (col + dy);
                 int pixel = static_cast<int>(input[neighbor]);
-                Gx += pixel * GxKernel[dx + 1][dy + 1];
-                Gy += pixel * GyKernel[dx + 1][dy + 1];
+                Gx += pixel * d_GxKernel[(dx + 1) * 3 + (dy + 1)];
+                Gy += pixel * d_GyKernel[(dx + 1) * 3 + (dy + 1)];
             }
         }
         magnitude[idx] = sqrtf(Gx * Gx + Gy * Gy);
@@ -116,8 +109,6 @@ __global__ void kernelSobel(const unsigned char *input, float *magnitude, float 
 // ===========================
 // Kernel 4: Non-Maximum Suppression
 // ===========================
-// Input: gradient magnitude and quantized direction (both as float arrays)
-// Output: thinned edges in a float array (0 for suppressed pixels)
 __global__ void kernelNonMaxSuppression(const float *magnitude, const float *direction, float *output, int width, int height)
 {
     int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -157,8 +148,6 @@ __global__ void kernelNonMaxSuppression(const float *magnitude, const float *dir
 // ===========================
 // Kernel 5: Double Thresholding
 // ===========================
-// Input: thinned edges (float array); Output: 8-bit image with 255 (strong), 128 (weak), or 0 (non-edge)
-// Thresholds: t_low, t_high (floats)
 __global__ void kernelDoubleThreshold(const float *input, unsigned char *output, int width, int height, float t_low, float t_high)
 {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -178,8 +167,6 @@ __global__ void kernelDoubleThreshold(const float *input, unsigned char *output,
 // ===========================
 // Kernel 6: Hysteresis (Edge Tracking)
 // ===========================
-// A simple per-pixel kernel that, for each strong edge pixel, looks at its 8 neighbors
-// and promotes any weak edge (128) neighbor to strong (255). For simplicity, assume one pass.
 __global__ void kernelHysteresis(unsigned char *image, int width, int height)
 {
     int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -207,13 +194,30 @@ __global__ void kernelHysteresis(unsigned char *image, int width, int height)
 // ===========================
 // Host Main Function
 // ===========================
-int main()
+int main(int argc, char **argv)
 {
+    // Check if image path was provided
+    if (argc < 2)
+    {
+        std::cerr << "Usage: " << argv[0] << " path/to/img.png" << std::endl;
+        return -1;
+    }
+
+    // Get the input path from command-line arguments
+    std::string inputPath = argv[1];
+    // Extract base filename (e.g., "img.png" -> "img")
+    size_t lastSlash = inputPath.find_last_of("/\\");
+    std::string filename = (lastSlash == std::string::npos) ? inputPath : inputPath.substr(lastSlash + 1);
+    size_t dotPos = filename.find_last_of('.');
+    std::string basename = (dotPos == std::string::npos) ? filename : filename.substr(0, dotPos);
+    // Create output filename with format "edgeD_<basename>.png"
+    std::string outputPath = "edgeD_" + basename + ".png";
+
     // Load image using OpenCV (assumed to be BGR)
-    cv::Mat src = cv::imread("input.png", cv::IMREAD_COLOR);
+    cv::Mat src = cv::imread(inputPath, cv::IMREAD_COLOR);
     if (src.empty())
     {
-        std::cerr << "Error: Unable to load image!" << std::endl;
+        std::cerr << "Error: Unable to load image " << inputPath << std::endl;
         return -1;
     }
 
@@ -286,8 +290,8 @@ int main()
     cudaMemcpy(result.ptr<unsigned char>(), d_dt, numPixels * sizeof(unsigned char), cudaMemcpyDeviceToHost);
 
     // Save final edge-detected image
-    cv::imwrite("cuda_canny_result.png", result);
-    std::cout << "Result saved as cuda_canny_result.png" << std::endl;
+    cv::imwrite(outputPath, result);
+    std::cout << "Result saved as " << outputPath << std::endl;
 
     // Cleanup device memory
     cudaFree(d_src);
