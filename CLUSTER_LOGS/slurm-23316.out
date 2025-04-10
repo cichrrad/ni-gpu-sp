@@ -1,0 +1,10 @@
+===== GPU Canny Timings =====
+Grayscale:          3425 micro
+Gaussian Blur:      258 micro
+Sobel:              340 micro
+Non-max Suppression:178 micro
+Double Threshold:   93 micro
+Hysteresis:         97 micro
+------------------------------------
+Total (all steps):  4391 micro
+Result saved as edgeD_vitaly-mazur-e_b5X7BcGVY-unsplash.png

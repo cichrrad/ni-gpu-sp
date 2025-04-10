@@ -1,0 +1,10 @@
+===== GPU Canny Timings =====
+Grayscale:          3165 micro
+Gaussian Blur:      28 micro
+Sobel:              39 micro
+Non-max Suppression:23 micro
+Double Threshold:   23 micro
+Hysteresis:         22 micro
+------------------------------------
+Total (all steps):  3300 micro
+Result saved as edgeD_racecar.png
