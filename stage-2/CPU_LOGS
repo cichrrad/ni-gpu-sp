@@ -1,0 +1,225 @@
+Running on...[43C[0m[32m[1mCPU[0m[0m:[0m AMD Ryzen 5 5600X (12) @ 3.700GHz[0m 
+Processing file: ../image-dataset/behnam-norouzi-I5eKsDa8iwY-unsplash.jpg
+Image loaded successfully: ../image-dataset/behnam-norouzi-I5eKsDa8iwY-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           3919.27 micros
+Gaussian Blur:       137416 micros
+Sobel:               42672.5 micros
+Non-Max Suppression: 10242.8 micros
+Double Threshold:    3287.84 micros
+Hysteresis:          7948.48 micros
+---------------------------------------
+Total sub-steps:     205487 micros
+
+Image saved successfully: OUT/out_behnam-norouzi-I5eKsDa8iwY-unsplash.jpg
+Processing file: ../image-dataset/benjamin-chambon-0vnmC_UWuMg-unsplash.jpg
+Image loaded successfully: ../image-dataset/benjamin-chambon-0vnmC_UWuMg-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           32622.4 micros
+Gaussian Blur:       1.38914e+06 micros
+Sobel:               441096 micros
+Non-Max Suppression: 112841 micros
+Double Threshold:    30218.4 micros
+Hysteresis:          46080.6 micros
+---------------------------------------
+Total sub-steps:     2.052e+06 micros
+
+Image saved successfully: OUT/out_benjamin-chambon-0vnmC_UWuMg-unsplash.jpg
+Processing file: ../image-dataset/benjamin-chambon-SRXkNrlTalM-unsplash.jpg
+Image loaded successfully: ../image-dataset/benjamin-chambon-SRXkNrlTalM-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           32566.8 micros
+Gaussian Blur:       1.38983e+06 micros
+Sobel:               456186 micros
+Non-Max Suppression: 117063 micros
+Double Threshold:    33954.9 micros
+Hysteresis:          75376.5 micros
+---------------------------------------
+Total sub-steps:     2.10497e+06 micros
+
+Image saved successfully: OUT/out_benjamin-chambon-SRXkNrlTalM-unsplash.jpg
+Processing file: ../image-dataset/circle.png
+Image loaded successfully: ../image-dataset/circle.png
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           249.966 micros
+Gaussian Blur:       10622 micros
+Sobel:               2766.92 micros
+Non-Max Suppression: 596.967 micros
+Double Threshold:    225.269 micros
+Hysteresis:          336.781 micros
+---------------------------------------
+Total sub-steps:     14797.9 micros
+
+Image saved successfully: OUT/out_circle.png
+Processing file: ../image-dataset/eric-barbeau-RyRuudzKonE-unsplash.jpg
+Image loaded successfully: ../image-dataset/eric-barbeau-RyRuudzKonE-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           152622 micros
+Gaussian Blur:       6.53553e+06 micros
+Sobel:               2.36176e+06 micros
+Non-Max Suppression: 712233 micros
+Double Threshold:    146437 micros
+Hysteresis:          241157 micros
+---------------------------------------
+Total sub-steps:     1.01497e+07 micros
+
+Image saved successfully: OUT/out_eric-barbeau-RyRuudzKonE-unsplash.jpg
+Processing file: ../image-dataset/kabiur-rahman-riyad-oOp7PGtX1Qs-unsplash.jpg
+Image loaded successfully: ../image-dataset/kabiur-rahman-riyad-oOp7PGtX1Qs-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           50659.5 micros
+Gaussian Blur:       2.16823e+06 micros
+Sobel:               697322 micros
+Non-Max Suppression: 194386 micros
+Double Threshold:    45321.2 micros
+Hysteresis:          51029.8 micros
+---------------------------------------
+Total sub-steps:     3.20695e+06 micros
+
+Image saved successfully: OUT/out_kabiur-rahman-riyad-oOp7PGtX1Qs-unsplash.jpg
+Processing file: ../image-dataset/katie-azi-EANhHTzumV4-unsplash.jpg
+Image loaded successfully: ../image-dataset/katie-azi-EANhHTzumV4-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           186968 micros
+Gaussian Blur:       7.5645e+06 micros
+Sobel:               2.65268e+06 micros
+Non-Max Suppression: 813629 micros
+Double Threshold:    155669 micros
+Hysteresis:          153281 micros
+---------------------------------------
+Total sub-steps:     1.15267e+07 micros
+
+Image saved successfully: OUT/out_katie-azi-EANhHTzumV4-unsplash.jpg
+Processing file: ../image-dataset/Large_Scaled_Forest_Lizard.jpg
+Image loaded successfully: ../image-dataset/Large_Scaled_Forest_Lizard.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           6788.88 micros
+Gaussian Blur:       291416 micros
+Sobel:               93049.8 micros
+Non-Max Suppression: 24094 micros
+Double Threshold:    7697.9 micros
+Hysteresis:          19894.6 micros
+---------------------------------------
+Total sub-steps:     442941 micros
+
+Image saved successfully: OUT/out_Large_Scaled_Forest_Lizard.jpg
+Processing file: ../image-dataset/logan-weaver-lgnwvr-a4WnIIiNbR0-unsplash.jpg
+Image loaded successfully: ../image-dataset/logan-weaver-lgnwvr-a4WnIIiNbR0-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           658565 micros
+Gaussian Blur:       1.01773e+07 micros
+Sobel:               3.38479e+06 micros
+Non-Max Suppression: 943877 micros
+Double Threshold:    209137 micros
+Hysteresis:          225155 micros
+---------------------------------------
+Total sub-steps:     1.55988e+07 micros
+
+Image saved successfully: OUT/out_logan-weaver-lgnwvr-a4WnIIiNbR0-unsplash.jpg
+Processing file: ../image-dataset/maxim-tolchinskiy-N0ktb-SWggM-unsplash.jpg
+Image loaded successfully: ../image-dataset/maxim-tolchinskiy-N0ktb-SWggM-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           14374.5 micros
+Gaussian Blur:       617583 micros
+Sobel:               211868 micros
+Non-Max Suppression: 52928.8 micros
+Double Threshold:    14081.1 micros
+Hysteresis:          32335.9 micros
+---------------------------------------
+Total sub-steps:     943172 micros
+
+Image saved successfully: OUT/out_maxim-tolchinskiy-N0ktb-SWggM-unsplash.jpg
+Processing file: ../image-dataset/neon-wang-HNEONlW67lU-unsplash.jpg
+Image loaded successfully: ../image-dataset/neon-wang-HNEONlW67lU-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           85626.1 micros
+Gaussian Blur:       3.6676e+06 micros
+Sobel:               1.24362e+06 micros
+Non-Max Suppression: 381252 micros
+Double Threshold:    75269.9 micros
+Hysteresis:          81804.6 micros
+---------------------------------------
+Total sub-steps:     5.53517e+06 micros
+
+Image saved successfully: OUT/out_neon-wang-HNEONlW67lU-unsplash.jpg
+Processing file: ../image-dataset/racecar.jpeg
+Image loaded successfully: ../image-dataset/racecar.jpeg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           287.307 micros
+Gaussian Blur:       12702.6 micros
+Sobel:               4376.73 micros
+Non-Max Suppression: 1049.39 micros
+Double Threshold:    297.947 micros
+Hysteresis:          816.284 micros
+---------------------------------------
+Total sub-steps:     19530.3 micros
+
+Image saved successfully: OUT/out_racecar.jpeg
+Processing file: ../image-dataset/tamas-tokos-bwHfiDrq6TI-unsplash.jpg
+Image loaded successfully: ../image-dataset/tamas-tokos-bwHfiDrq6TI-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           154291 micros
+Gaussian Blur:       4.63457e+06 micros
+Sobel:               1.55427e+06 micros
+Non-Max Suppression: 418294 micros
+Double Threshold:    107324 micros
+Hysteresis:          210531 micros
+---------------------------------------
+Total sub-steps:     7.07929e+06 micros
+
+Image saved successfully: OUT/out_tamas-tokos-bwHfiDrq6TI-unsplash.jpg
+Processing file: ../image-dataset/valeriia-neganova-Z-EvQnVMknY-unsplash.jpg
+Image loaded successfully: ../image-dataset/valeriia-neganova-Z-EvQnVMknY-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           38522.1 micros
+Gaussian Blur:       1.64529e+06 micros
+Sobel:               590614 micros
+Non-Max Suppression: 171943 micros
+Double Threshold:    38421.7 micros
+Hysteresis:          70879.6 micros
+---------------------------------------
+Total sub-steps:     2.55567e+06 micros
+
+Image saved successfully: OUT/out_valeriia-neganova-Z-EvQnVMknY-unsplash.jpg
+Processing file: ../image-dataset/virginia-marinova-iyI6uvubKJQ-unsplash.jpg
+Image loaded successfully: ../image-dataset/virginia-marinova-iyI6uvubKJQ-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           140864 micros
+Gaussian Blur:       6.0241e+06 micros
+Sobel:               2.16076e+06 micros
+Non-Max Suppression: 544616 micros
+Double Threshold:    153768 micros
+Hysteresis:          466540 micros
+---------------------------------------
+Total sub-steps:     9.49065e+06 micros
+
+Image saved successfully: OUT/out_virginia-marinova-iyI6uvubKJQ-unsplash.jpg
+Processing file: ../image-dataset/vitaly-mazur-e_b5X7BcGVY-unsplash.jpg
+Image loaded successfully: ../image-dataset/vitaly-mazur-e_b5X7BcGVY-unsplash.jpg
+Applying Custom Canny Edge Detector...
+===== Sequential sub-step timings =====
+Grayscale:           71359.3 micros
+Gaussian Blur:       3.05887e+06 micros
+Sobel:               1.07252e+06 micros
+Non-Max Suppression: 306458 micros
+Double Threshold:    63315 micros
+Hysteresis:          68149.9 micros
+---------------------------------------
+Total sub-steps:     4.64067e+06 micros
+
+Image saved successfully: OUT/out_vitaly-mazur-e_b5X7BcGVY-unsplash.jpg
