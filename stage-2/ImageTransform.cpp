@@ -1,5 +1,6 @@
 #include "ImageTransform.h"
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <queue>
@@ -44,27 +45,66 @@ void ImageTransform::_applyCustomCanny() {
   cv::Mat magnitude, direction, temp;
 
   // TODO parallel over rows or image segments
+
+  auto t1_start = std::chrono::high_resolution_clock::now();
   _convertToGrayscale(src, dest);
+  auto t1_stop = std::chrono::high_resolution_clock::now();
+  double grayscaleTime =
+      std::chrono::duration<double, std::micro>(t1_stop - t1_start).count();
   _saveIntermediateImage(dest, "1_grayscale");
 
   // TODO parallel over kernel area (5x5)
+  auto t2_start = std::chrono::high_resolution_clock::now();
   _applyGaussianBlur(dest, temp);
+  auto t2_stop = std::chrono::high_resolution_clock::now();
+  double blurTime =
+      std::chrono::duration<double, std::micro>(t2_stop - t2_start).count();
   _saveIntermediateImage(temp, "2_gaussian_blur");
 
   // TODO parallel over kernel area (3x3)
+
+  auto t3_start = std::chrono::high_resolution_clock::now();
   _applySobel(temp, magnitude, direction);
+  auto t3_stop = std::chrono::high_resolution_clock::now();
+  double sobelTime =
+      std::chrono::duration<double, std::micro>(t3_stop - t3_start).count();
   _saveIntermediateImage(magnitude, "3_gradient_magnitude");
 
   // TODO parallel over triple row stripes or image segments
+  auto t4_start = std::chrono::high_resolution_clock::now();
   _applyNonMaximumSuppression(magnitude, direction, temp);
+  auto t4_stop = std::chrono::high_resolution_clock::now();
+  double nmsTime =
+      std::chrono::duration<double, std::micro>(t4_stop - t4_start).count();
   _saveIntermediateImage(temp, "4_non_max_suppression");
 
   // TODO parallel over rows or image segments
+  auto t5_start = std::chrono::high_resolution_clock::now();
   _applyDoubleThreshold(temp, dest);
+  auto t5_stop = std::chrono::high_resolution_clock::now();
+  double doubleThresholdTime =
+      std::chrono::duration<double, std::micro>(t5_stop - t5_start).count();
   _saveIntermediateImage(dest, "5_double_threshold");
 
   // TODO parallel queue processing / rows
+  auto t6_start = std::chrono::high_resolution_clock::now();
   _applyHysteresis(dest);
+  auto t6_stop = std::chrono::high_resolution_clock::now();
+  double hysteresisTime =
+      std::chrono::duration<double, std::micro>(t6_stop - t6_start).count();
+
+  auto total = grayscaleTime + blurTime + sobelTime + nmsTime +
+               doubleThresholdTime + hysteresisTime;
+  // Print or store these times
+  std::cout << "===== Sequential sub-step timings =====\n"
+            << "Grayscale:           " << grayscaleTime << " micros\n"
+            << "Gaussian Blur:       " << blurTime << " micros\n"
+            << "Sobel:               " << sobelTime << " micros\n"
+            << "Non-Max Suppression: " << nmsTime << " micros\n"
+            << "Double Threshold:    " << doubleThresholdTime << " micros\n"
+            << "Hysteresis:          " << hysteresisTime << " micros\n"
+            << "---------------------------------------\n"
+            << "Total sub-steps:     " << total << " micros\n\n";
 }
 
 // 1️ Convert image to grayscale
