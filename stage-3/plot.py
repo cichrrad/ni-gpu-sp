@@ -1,38 +1,32 @@
-#!/usr/bin/env python3
 import pandas as pd
 import matplotlib.pyplot as plt
-import argparse
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Plot SIZE vs TOTAL execution time from CSV logs and save the figure."
-    )
-    parser.add_argument("csvfile", help="Path to the CSV file containing log data")
-    parser.add_argument("--output", default="plot.png",
-                        help="Output image file for the saved figure (default: plot.png)")
-    args = parser.parse_args()
+# Load the CSV files
+cpu_df = pd.read_csv("cpu_times.csv")
+gpu_df = pd.read_csv("gpu_times.csv")
 
-    # Load CSV data and convert columns to numeric
-    df = pd.read_csv(args.csvfile)
-    df['SIZE'] = pd.to_numeric(df['SIZE'], errors='coerce')
-    df['TOTAL'] = pd.to_numeric(df['TOTAL'], errors='coerce')
+# Phases to compare (exclude TOTAL and RESULT and percentage columns)
+phases = ['GStime', 'GBtime', 'STtime', 'NMS', 'DTtime', 'Hystime']
 
-    # Sort the data by SIZE to create a coherent line plot
-    df.sort_values('SIZE', inplace=True)
+# Compute average times for each phase
+cpu_avg = cpu_df[phases].mean()
+gpu_avg = gpu_df[phases].mean()
 
-    # Create the line chart
-    plt.figure(figsize=(10, 6))
-    plt.plot(df['SIZE'], df['TOTAL'], marker='o', linestyle='-', color='b')
-    plt.xlabel("File Size (bytes)")
-    plt.ylabel("Total Execution Time (microseconds)")
-    plt.title("Correlation between File Size and Total Execution Time")
-    plt.grid(True)
-    plt.tight_layout()
+# Create a DataFrame for comparison
+comparison_df = pd.DataFrame({
+    'CPU': cpu_avg,
+    'GPU': gpu_avg
+})
 
-    # Save the figure to file and do not show it interactively
-    plt.savefig(args.output+"_size_x_total")
-    print(f"Figure saved as {args.output}_[charttype].png")
+# Plotting
+plt.figure(figsize=(10, 6))
+comparison_df.plot(kind='bar', log=True)
+plt.title('Average Phase Execution Time: CPU vs GPU (Log Scale)')
+plt.ylabel('Time (microseconds, log scale)')
+plt.xticks(rotation=45)
+plt.grid(True, which="both", ls="--", linewidth=0.5)
+plt.tight_layout()
 
-if __name__ == "__main__":
-    main()
+# Save the plot as a PDF
+plt.savefig("cpu_gpu_comparison_log.pdf")
 
